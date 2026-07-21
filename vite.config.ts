@@ -5,7 +5,10 @@ import { componentTagger } from "lovable-tagger";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
-  base: "/curato/",
+  // GitHub Pages serves this app at github.io/curato/, so assets need that
+  // prefix there. Netlify (and any other host serving from the domain root)
+  // sets NETLIFY=true during its build, so use root-relative paths instead.
+  base: process.env.NETLIFY ? "/" : "/curato/",
 
   server: {
     host: "::",
