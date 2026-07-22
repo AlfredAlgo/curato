@@ -2,10 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { PasswordModal } from "@/components/PasswordModal";
-import imagelineLogo from "@/assets/imageline-logo.png";
-import flStudioLogo from "@/assets/fl-studio-logo.png";
 import curatoLogo from "@/assets/curato-logo-new.png";
-import ambLogo from "@/assets/amb-logo.png";
 
 const socialLinks = [
   { name: "TikTok", href: "https://www.tiktok.com/@nativescope", icon: "tiktok" },
@@ -156,22 +153,6 @@ export const Footer = () => {
                   </motion.a>
                 ))}
               </div>
-            </div>
-          </div>
-
-          {/* Partners Section */}
-          <div className="py-8 border-t border-border mb-8">
-            <h4 className="text-sm font-semibold uppercase tracking-wider text-center mb-6 text-muted-foreground">Partners</h4>
-            <div className="flex items-center justify-center gap-12 flex-wrap">
-              <a href="https://www.image-line.com" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-opacity">
-                <img src={imagelineLogo} alt="Image-Line" className="h-10 object-contain brightness-0 invert" />
-              </a>
-              <a href="https://www.image-line.com/fl-studio/" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-opacity">
-                <img src={flStudioLogo} alt="FL Studio" className="h-10 object-contain brightness-0 invert" />
-              </a>
-              <span className="opacity-70 hover:opacity-100 transition-opacity">
-                <img src={ambLogo} alt="Ambitious Entertainment" className="h-10 object-contain brightness-0 invert" />
-              </span>
             </div>
           </div>
 
