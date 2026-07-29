@@ -8,7 +8,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Eye, EyeOff, Mail, Lock, User, Music, Headphones, ArrowLeft, Check, X } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Music, Headphones, Package, ArrowLeft, Check, X } from "lucide-react";
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" aria-hidden="true">
@@ -43,7 +43,7 @@ const passwordSchema = z
 const emailSchema = z.string().email("Please enter a valid email address");
 
 type AuthMode = "login" | "signup" | "forgot";
-type SignupRole = "artist" | "listener";
+type SignupRole = "artist" | "producer" | "listener";
 
 interface PasswordCheck {
   label: string;
@@ -307,7 +307,7 @@ const Auth = () => {
                 <RadioGroup
                   value={signupRole}
                   onValueChange={(v) => setSignupRole(v as SignupRole)}
-                  className="grid grid-cols-2 gap-4"
+                  className="grid grid-cols-3 gap-3"
                 >
                   <Label
                     htmlFor="role-artist"
@@ -318,9 +318,22 @@ const Auth = () => {
                     }`}
                   >
                     <RadioGroupItem value="artist" id="role-artist" className="sr-only" />
-                    <Music className="w-8 h-8 mb-2 text-primary" />
-                    <span className="font-semibold">Artist</span>
-                    <span className="text-xs text-muted-foreground mt-1">Submit music</span>
+                    <Music className="w-7 h-7 mb-2 text-primary" />
+                    <span className="font-semibold text-sm">Artist</span>
+                    <span className="text-xs text-muted-foreground mt-1 text-center">Submit music</span>
+                  </Label>
+                  <Label
+                    htmlFor="role-producer"
+                    className={`flex flex-col items-center justify-center p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                      signupRole === "producer"
+                        ? "border-primary bg-primary/5"
+                        : "border-border hover:border-muted-foreground"
+                    }`}
+                  >
+                    <RadioGroupItem value="producer" id="role-producer" className="sr-only" />
+                    <Package className="w-7 h-7 mb-2 text-primary" />
+                    <span className="font-semibold text-sm">Producer</span>
+                    <span className="text-xs text-muted-foreground mt-1 text-center">Sell your sounds</span>
                   </Label>
                   <Label
                     htmlFor="role-listener"
@@ -331,9 +344,9 @@ const Auth = () => {
                     }`}
                   >
                     <RadioGroupItem value="listener" id="role-listener" className="sr-only" />
-                    <Headphones className="w-8 h-8 mb-2 text-primary" />
-                    <span className="font-semibold">Listener</span>
-                    <span className="text-xs text-muted-foreground mt-1">Give feedback</span>
+                    <Headphones className="w-7 h-7 mb-2 text-primary" />
+                    <span className="font-semibold text-sm">Listener</span>
+                    <span className="text-xs text-muted-foreground mt-1 text-center">Give feedback</span>
                   </Label>
                 </RadioGroup>
               </div>

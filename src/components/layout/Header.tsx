@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, LogIn, LogOut, User, Shield, Music, Crown, Headphones, ShoppingBag, MessageCircle, Settings } from "lucide-react";
+import { Menu, X, LogIn, LogOut, User, Shield, Music, Package, Crown, Headphones, ShoppingBag, MessageCircle, Search, Settings } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { NotificationBell } from "@/components/NotificationBell";
 
 const allNavLinks = [
-  { name: "Home", path: "/", roles: ["admin", "super_curator", "curator", "artist", "listener", null] },
+  { name: "Home", path: "/", roles: ["admin", "super_curator", "curator", "artist", "producer", "listener", null] },
   { name: "Discover", path: "/discover", roles: ["admin", "super_curator", "curator", "listener", null] },
-  { name: "Leaderboard", path: "/leaderboard", roles: ["admin", "super_curator", "curator", "artist"] },
-  { name: "Shop", path: "/shop", roles: ["admin", "super_curator", "curator", "artist"] },
-  { name: "Submit", path: "/reviews", roles: ["admin", "super_curator", "curator", "artist"] },
-  { name: "Chat", path: "/chat", roles: ["admin", "super_curator", "curator", "artist", "listener"] },
-  { name: "Contact", path: "/contact", roles: ["admin", "super_curator", "curator", "artist", "listener", null] },
+  { name: "Search", path: "/search", roles: ["admin", "super_curator", "curator", "artist", "producer", "listener", null] },
+  { name: "Leaderboard", path: "/leaderboard", roles: ["admin", "super_curator", "curator", "artist", "producer"] },
+  { name: "Shop", path: "/shop", roles: ["admin", "super_curator", "curator", "artist", "producer"] },
+  { name: "Opportunities", path: "/opportunities", roles: ["admin", "super_curator", "curator", "artist", "producer"] },
+  { name: "Submit", path: "/reviews", roles: ["admin", "super_curator", "curator", "artist", "producer"] },
+  { name: "Chat", path: "/chat", roles: ["admin", "super_curator", "curator", "artist", "producer", "listener"] },
+  { name: "Contact", path: "/contact", roles: ["admin", "super_curator", "curator", "artist", "producer", "listener", null] },
 ];
 
 export const Header = () => {
@@ -24,6 +26,7 @@ export const Header = () => {
   const isCurator = role === "curator" || role === "super_curator" || role === "admin";
   const isAdmin = role === "admin";
   const isArtist = role === "artist";
+  const isProducer = role === "producer";
   const isListener = role === "listener";
 
   const navLinks = allNavLinks.filter((link) => link.roles.includes(role || null));
@@ -106,6 +109,14 @@ export const Header = () => {
                       <Link to="/artist">
                         <Button variant="outline" size="sm" className="gap-2">
                           <Music className="w-4 h-4" />
+                          <span className="hidden sm:inline">Dashboard</span>
+                        </Button>
+                      </Link>
+                    )}
+                    {isProducer && (
+                      <Link to="/artist">
+                        <Button variant="outline" size="sm" className="gap-2">
+                          <Package className="w-4 h-4" />
                           <span className="hidden sm:inline">Dashboard</span>
                         </Button>
                       </Link>

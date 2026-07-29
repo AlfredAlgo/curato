@@ -1,6 +1,9 @@
-project_id = "byqymmpfnysxoegnqjbw"
+project_id = "qcyhtbzgdltsuhuocgev"
 
 [functions.track-controls]
+verify_jwt = false
+
+[functions.create-product-checkout]
 verify_jwt = false
 
 [functions.submit-feedback]

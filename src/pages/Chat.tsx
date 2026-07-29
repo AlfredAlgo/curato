@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { Send, MessageCircle, Users, Shield, Music, Headphones } from "lucide-react";
+import { Send, MessageCircle, Users, Shield, Music, Package, Headphones } from "lucide-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface ChatMessage {
@@ -23,6 +23,7 @@ interface ChatMessage {
 const ROOM_CONFIG: Record<string, { label: string; icon: React.ElementType; roles: string[] }> = {
   curators: { label: "Curators", icon: Shield, roles: ["curator", "super_curator", "admin"] },
   artists: { label: "Artists", icon: Music, roles: ["artist"] },
+  producers: { label: "Producers", icon: Package, roles: ["producer"] },
   listeners: { label: "Listeners", icon: Headphones, roles: ["listener"] },
 };
 

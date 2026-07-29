@@ -14,6 +14,166 @@ export type Database = {
   }
   public: {
     Tables: {
+      follows: {
+        Row: {
+          created_at: string
+          followed_id: string
+          follower_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          followed_id: string
+          follower_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          followed_id?: string
+          follower_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      track_saves: {
+        Row: {
+          created_at: string
+          id: string
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "track_saves_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      shop_products: {
+        Row: {
+          category: Database["public"]["Enums"]["shop_category"]
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          is_curator_pick: boolean
+          price_cents: number
+          seller_id: string | null
+          seller_type: Database["public"]["Enums"]["seller_type"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["shop_category"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_curator_pick?: boolean
+          price_cents: number
+          seller_id?: string | null
+          seller_type?: Database["public"]["Enums"]["seller_type"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["shop_category"]
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          is_curator_pick?: boolean
+          price_cents?: number
+          seller_id?: string | null
+          seller_type?: Database["public"]["Enums"]["seller_type"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      opportunities: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          link_url: string | null
+          reward_details: string | null
+          title: string
+          type: Database["public"]["Enums"]["opportunity_type"]
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          link_url?: string | null
+          reward_details?: string | null
+          title: string
+          type: Database["public"]["Enums"]["opportunity_type"]
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          link_url?: string | null
+          reward_details?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["opportunity_type"]
+        }
+        Relationships: []
+      }
+      opportunity_interests: {
+        Row: {
+          created_at: string
+          id: string
+          opportunity_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "opportunity_interests_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       chat_messages: {
         Row: {
           content: string
@@ -174,6 +334,7 @@ export type Database = {
           id: string
           id_number: string | null
           location: string | null
+          referral_code: string | null
           residential_address: string | null
           stage_name: string | null
           updated_at: string
@@ -189,6 +350,7 @@ export type Database = {
           id?: string
           id_number?: string | null
           location?: string | null
+          referral_code?: string | null
           residential_address?: string | null
           stage_name?: string | null
           updated_at?: string
@@ -204,6 +366,7 @@ export type Database = {
           id?: string
           id_number?: string | null
           location?: string | null
+          referral_code?: string | null
           residential_address?: string | null
           stage_name?: string | null
           updated_at?: string
@@ -425,7 +588,10 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "super_curator" | "curator" | "artist" | "listener"
+      app_role: "admin" | "super_curator" | "curator" | "artist" | "listener" | "producer"
+      shop_category: "sound_pack" | "plugin" | "merch" | "producer_item"
+      seller_type: "official" | "curator" | "producer"
+      opportunity_type: "sponsorship" | "brand_partnership" | "event" | "affiliate"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -553,7 +719,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "super_curator", "curator", "artist", "listener"],
+      app_role: ["admin", "super_curator", "curator", "artist", "listener", "producer"],
+      shop_category: ["sound_pack", "plugin", "merch", "producer_item"],
+      seller_type: ["official", "curator", "producer"],
+      opportunity_type: ["sponsorship", "brand_partnership", "event", "affiliate"],
     },
   },
 } as const

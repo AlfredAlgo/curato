@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TrackPlayButton } from "@/components/TrackPlayButton";
+import { FollowButton } from "@/components/FollowButton";
+import { SaveButton } from "@/components/SaveButton";
 import {
   Trophy,
   TrendingUp,
@@ -25,6 +27,7 @@ interface LeaderboardTrack {
   file_url: string | null;
   external_link: string | null;
   genre: string | null;
+  user_id: string;
   likes: number;
   comments: number;
   shares: number;
@@ -54,7 +57,7 @@ const Leaderboard = () => {
     queryFn: async () => {
       const { data: tracks, error } = await supabase
         .from("tracks")
-        .select("id, title, artist_name, file_url, external_link, genre")
+        .select("id, title, artist_name, file_url, external_link, genre, user_id")
         .in("status", ["pending", "in_review", "community_review", "shortlisted", "approved"]);
 
       if (error) throw error;
@@ -231,6 +234,9 @@ const Leaderboard = () => {
                             <TrendingUp className="w-3 h-3 mr-1" />
                             {track.score}
                           </Badge>
+
+                          <SaveButton trackId={track.id} />
+                          <FollowButton userId={track.user_id} />
                         </div>
                       </Card>
                     </motion.div>
@@ -278,6 +284,8 @@ const Leaderboard = () => {
                           <Badge className="bg-primary/10 text-primary">
                             {contributor.total_contributions} pts
                           </Badge>
+
+                          <FollowButton userId={contributor.user_id} />
                         </div>
                       </Card>
                     </motion.div>

@@ -11,6 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrackPlayButton } from "@/components/TrackPlayButton";
 import { SocialShareButtons } from "@/components/SocialShareButtons";
+import { FollowButton } from "@/components/FollowButton";
+import { SaveButton } from "@/components/SaveButton";
 import { toast } from "sonner";
 import {
   Heart,
@@ -310,6 +312,9 @@ const Discover = () => {
 
                         {/* Social Share Buttons */}
                         <SocialShareButtons trackTitle={track.title} artistName={track.artist_name} trackId={track.id} />
+
+                        <SaveButton trackId={track.id} />
+                        <FollowButton userId={track.user_id} />
 
                         <div className="ml-auto flex items-center gap-1 text-xs text-muted-foreground">
                           <TrendingUp className="w-3 h-3" />

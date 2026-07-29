@@ -24,17 +24,30 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { 
-  Shield, 
-  Users, 
-  Music, 
+import {
+  Shield,
+  Users,
+  Music,
   Layers,
   Crown,
   User,
+  Package,
+  BarChart3,
   AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Database } from "@/integrations/supabase/types";
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+} from "recharts";
 
 type AppRole = Database["public"]["Enums"]["app_role"];
 
@@ -43,6 +56,7 @@ const roleConfig: Record<AppRole, { label: string; color: string; icon: React.Re
   super_curator: { label: "Super Curator", color: "bg-purple-500/20 text-purple-400", icon: <Shield className="w-3 h-3" /> },
   curator: { label: "Curator", color: "bg-blue-500/20 text-blue-400", icon: <Shield className="w-3 h-3" /> },
   artist: { label: "Artist", color: "bg-green-500/20 text-green-400", icon: <User className="w-3 h-3" /> },
+  producer: { label: "Producer", color: "bg-orange-500/20 text-orange-400", icon: <Package className="w-3 h-3" /> },
   listener: { label: "Listener", color: "bg-gray-500/20 text-gray-400", icon: <User className="w-3 h-3" /> },
 };
 
@@ -155,6 +169,61 @@ const AdminPanel = () => {
     },
   });
 
+  // Engagement totals for analytics
+  const { data: engagementTotals } = useQuery({
+    queryKey: ["admin-engagement-totals"],
+    queryFn: async () => {
+      const [likes, comments, shares, feedback] = await Promise.all([
+        supabase.from("track_likes").select("id", { count: "exact", head: true }),
+        supabase.from("track_comments").select("id", { count: "exact", head: true }),
+        supabase.from("track_shares").select("id", { count: "exact", head: true }),
+        supabase.from("feedback").select("id", { count: "exact", head: true }),
+      ]);
+      return {
+        likes: likes.count || 0,
+        comments: comments.count || 0,
+        shares: shares.count || 0,
+        feedback: feedback.count || 0,
+      };
+    },
+    enabled: isAdmin,
+  });
+
+  // Submissions per day (last 14 days with activity)
+  const submissionsByDay = tracks?.reduce((acc, t) => {
+    const day = new Date(t.created_at).toLocaleDateString("en-ZA", { month: "short", day: "numeric" });
+    acc[day] = (acc[day] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const submissionsChartData = Object.entries(submissionsByDay || {})
+    .map(([day, count]) => ({ day, count }))
+    .slice(-14);
+
+  // Status breakdown
+  const statusCounts = tracks?.reduce((acc, t) => {
+    acc[t.status] = (acc[t.status] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const statusChartData = Object.entries(statusCounts || {}).map(([status, count]) => ({ status, count }));
+
+  // Role breakdown
+  const roleCounts = users?.reduce((acc, u) => {
+    acc[u.role] = (acc[u.role] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const roleChartData = Object.entries(roleCounts || {}).map(([role, count]) => ({ role: roleConfig[role as AppRole]?.label || role, count }));
+
+  // Genre breakdown
+  const genreCounts = tracks?.reduce((acc, t) => {
+    const genre = t.genre || "Unspecified";
+    acc[genre] = (acc[genre] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+  const genreChartData = Object.entries(genreCounts || {})
+    .map(([genre, count]) => ({ genre, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 8);
+
   if (loading || usersLoading) {
     return (
       <PageTransition>
@@ -248,7 +317,7 @@ const AdminPanel = () => {
             transition={{ delay: 0.2 }}
           >
             <Tabs defaultValue="users" className="space-y-6">
-              <TabsList className="grid w-full grid-cols-2 lg:w-auto lg:inline-flex">
+              <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-flex">
                 <TabsTrigger value="users" className="gap-2">
                   <Users className="w-4 h-4" />
                   <span>User Management</span>
@@ -256,6 +325,10 @@ const AdminPanel = () => {
                 <TabsTrigger value="tracks" className="gap-2">
                   <Music className="w-4 h-4" />
                   <span>Track Queue</span>
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  <span>Analytics</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -302,6 +375,7 @@ const AdminPanel = () => {
                                 <SelectContent>
                                   <SelectItem value="listener">Listener</SelectItem>
                                   <SelectItem value="artist">Artist</SelectItem>
+                                  <SelectItem value="producer">Producer</SelectItem>
                                   <SelectItem value="curator">Curator</SelectItem>
                                   <SelectItem value="super_curator">Super Curator</SelectItem>
                                   <SelectItem value="admin">Admin</SelectItem>
@@ -382,6 +456,82 @@ const AdminPanel = () => {
                       )}
                     </TableBody>
                   </Table>
+                </Card>
+              </TabsContent>
+
+              {/* Analytics Tab */}
+              <TabsContent value="analytics" className="space-y-6">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <Card className="p-4 text-center">
+                    <p className="text-2xl font-bold">{engagementTotals?.likes ?? "—"}</p>
+                    <p className="text-sm text-muted-foreground">Total Likes</p>
+                  </Card>
+                  <Card className="p-4 text-center">
+                    <p className="text-2xl font-bold">{engagementTotals?.comments ?? "—"}</p>
+                    <p className="text-sm text-muted-foreground">Total Comments</p>
+                  </Card>
+                  <Card className="p-4 text-center">
+                    <p className="text-2xl font-bold">{engagementTotals?.shares ?? "—"}</p>
+                    <p className="text-sm text-muted-foreground">Total Shares</p>
+                  </Card>
+                  <Card className="p-4 text-center">
+                    <p className="text-2xl font-bold">{engagementTotals?.feedback ?? "—"}</p>
+                    <p className="text-sm text-muted-foreground">Feedback Given</p>
+                  </Card>
+                </div>
+
+                <Card className="p-6">
+                  <h3 className="font-bold mb-4">Submissions Over Time</h3>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <LineChart data={submissionsChartData}>
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis dataKey="day" tick={{ fontSize: 12 }} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                      <Tooltip />
+                      <Line type="monotone" dataKey="count" stroke="hsl(var(--primary))" strokeWidth={2} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </Card>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <Card className="p-6">
+                    <h3 className="font-bold mb-4">Tracks by Status</h3>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={statusChartData}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                        <XAxis dataKey="status" tick={{ fontSize: 11 }} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </Card>
+
+                  <Card className="p-6">
+                    <h3 className="font-bold mb-4">Users by Role</h3>
+                    <ResponsiveContainer width="100%" height={220}>
+                      <BarChart data={roleChartData}>
+                        <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                        <XAxis dataKey="role" tick={{ fontSize: 11 }} />
+                        <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                        <Tooltip />
+                        <Bar dataKey="count" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </Card>
+                </div>
+
+                <Card className="p-6">
+                  <h3 className="font-bold mb-4">Top Genres</h3>
+                  <ResponsiveContainer width="100%" height={250}>
+                    <BarChart data={genreChartData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                      <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                      <YAxis dataKey="genre" type="category" width={100} tick={{ fontSize: 11 }} />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
                 </Card>
               </TabsContent>
             </Tabs>

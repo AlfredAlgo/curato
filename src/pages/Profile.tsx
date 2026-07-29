@@ -12,8 +12,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { TrackPlayButton } from "@/components/TrackPlayButton";
+import { FollowButton } from "@/components/FollowButton";
+import { SaveButton } from "@/components/SaveButton";
 import { toast } from "sonner";
-import { Camera, Save, User } from "lucide-react";
+import { Camera, Save, User, Bookmark, Users, Settings } from "lucide-react";
 
 const Profile = () => {
   const { user, loading } = useAuth();
@@ -80,6 +85,43 @@ const Profile = () => {
     onError: () => toast.error("Failed to update profile"),
   });
 
+  const { data: savedTracks } = useQuery({
+    queryKey: ["saved-tracks", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("track_saves")
+        .select("track_id, tracks (id, title, artist_name, file_url, external_link)")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data || []).map((s) => s.tracks).filter(Boolean) as {
+        id: string; title: string; artist_name: string; file_url: string | null; external_link: string | null;
+      }[];
+    },
+    enabled: !!user?.id,
+  });
+
+  const { data: following } = useQuery({
+    queryKey: ["following-list", user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const { data, error } = await supabase
+        .from("follows")
+        .select("followed_id")
+        .eq("follower_id", user.id);
+      if (error) throw error;
+      const ids = (data || []).map((f) => f.followed_id);
+      if (!ids.length) return [];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, stage_name")
+        .in("user_id", ids);
+      return profiles || [];
+    },
+    enabled: !!user?.id,
+  });
+
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !user) return;
@@ -135,7 +177,25 @@ const Profile = () => {
       <div className="min-h-screen pt-24 pb-20">
         <div className="studio-container max-w-2xl">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-3xl font-bold mb-8">Profile Settings</h1>
+            <h1 className="text-3xl font-bold mb-8">Profile</h1>
+
+            <Tabs defaultValue="settings" className="space-y-6">
+              <TabsList>
+                <TabsTrigger value="settings" className="gap-2">
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </TabsTrigger>
+                <TabsTrigger value="saved" className="gap-2">
+                  <Bookmark className="w-4 h-4" />
+                  Saved {savedTracks && `(${savedTracks.length})`}
+                </TabsTrigger>
+                <TabsTrigger value="following" className="gap-2">
+                  <Users className="w-4 h-4" />
+                  Following {following && `(${following.length})`}
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="settings" className="space-y-6">
 
             {/* Avatar */}
             <Card className="p-6 mb-6">
@@ -235,6 +295,59 @@ const Profile = () => {
                 </Button>
               </form>
             </Card>
+              </TabsContent>
+
+              <TabsContent value="saved" className="space-y-3">
+                {!savedTracks?.length ? (
+                  <Card className="p-12 text-center text-muted-foreground">
+                    <Bookmark className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+                    No saved tracks yet
+                  </Card>
+                ) : (
+                  savedTracks.map((track) => (
+                    <Card key={track.id} className="p-4">
+                      <div className="flex items-center gap-4">
+                        <TrackPlayButton
+                          trackId={track.id}
+                          fileUrl={track.file_url}
+                          externalLink={track.external_link}
+                          trackTitle={track.title}
+                          artistName={track.artist_name}
+                          variant="minimal"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold truncate">{track.title}</h3>
+                          <p className="text-sm text-muted-foreground truncate">{track.artist_name}</p>
+                        </div>
+                        <SaveButton trackId={track.id} />
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </TabsContent>
+
+              <TabsContent value="following" className="space-y-3">
+                {!following?.length ? (
+                  <Card className="p-12 text-center text-muted-foreground">
+                    <Users className="w-12 h-12 mx-auto mb-4 text-muted-foreground/30" />
+                    Not following anyone yet
+                  </Card>
+                ) : (
+                  following.map((person) => (
+                    <Card key={person.user_id} className="p-4">
+                      <div className="flex items-center gap-4">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold truncate">
+                            {person.stage_name || person.display_name || "Anonymous"}
+                          </h3>
+                        </div>
+                        <FollowButton userId={person.user_id} />
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </TabsContent>
+            </Tabs>
           </motion.div>
         </div>
       </div>

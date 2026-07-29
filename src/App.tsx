@@ -33,6 +33,8 @@ import Discover from "./pages/Discover";
 import Leaderboard from "./pages/Leaderboard";
 import Chat from "./pages/Chat";
 import Profile from "./pages/Profile";
+import SearchPage from "./pages/Search";
+import Opportunities from "./pages/Opportunities";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -78,6 +80,8 @@ const App = () => {
                         <Route path="/leaderboard" element={<Leaderboard />} />
                         <Route path="/chat" element={<Chat />} />
                         <Route path="/profile" element={<Profile />} />
+                        <Route path="/search" element={<SearchPage />} />
+                        <Route path="/opportunities" element={<Opportunities />} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </AnimatePresence>
