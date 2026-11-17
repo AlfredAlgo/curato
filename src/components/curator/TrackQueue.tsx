@@ -20,6 +20,7 @@ import {
   Layers
 } from "lucide-react";
 import { TrackPlayButton } from "@/components/TrackPlayButton";
+import { IsrcBadge } from "@/components/IsrcField";
 
 interface Track {
   id: string;
@@ -29,6 +30,7 @@ interface Track {
   external_link: string | null;
   submission_type: string;
   platform: string | null;
+  isrc: string | null;
   status: string;
   created_at: string;
   user_id: string;
@@ -256,6 +258,7 @@ export const TrackQueue = () => {
                             {track.platform}
                           </Badge>
                         )}
+                        <IsrcBadge isrc={track.isrc} />
                         <span className="text-xs text-muted-foreground">
                           {new Date(track.created_at).toLocaleDateString()}
                         </span>

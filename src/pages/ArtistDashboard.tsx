@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { TrackPlayButton } from "@/components/TrackPlayButton";
+import { IsrcEditor } from "@/components/IsrcField";
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
   pending: { label: "Pending", color: "bg-yellow-500/20 text-yellow-400", icon: <Clock className="w-3 h-3" /> },
@@ -33,6 +34,7 @@ const statusConfig: Record<string, { label: string; color: string; icon: React.R
 const ArtistDashboard = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -221,6 +223,14 @@ const ArtistDashboard = () => {
                                 {track.platform || "Link"}
                               </Badge>
                             )}
+
+                            <IsrcEditor
+                              trackId={track.id}
+                              isrc={track.isrc}
+                              onSaved={() =>
+                                queryClient.invalidateQueries({ queryKey: ["artist-tracks", user?.id] })
+                              }
+                            />
                           </div>
                         </div>
                         

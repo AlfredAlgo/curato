@@ -342,6 +342,7 @@ export type Database = {
           external_link: string | null
           file_url: string | null
           genre: string | null
+          isrc: string | null
           id: string
           platform: string | null
           snippet_url: string | null
@@ -359,6 +360,7 @@ export type Database = {
           file_url?: string | null
           genre?: string | null
           id?: string
+          isrc?: string | null
           platform?: string | null
           snippet_url?: string | null
           status?: string
@@ -375,6 +377,7 @@ export type Database = {
           file_url?: string | null
           genre?: string | null
           id?: string
+          isrc?: string | null
           platform?: string | null
           snippet_url?: string | null
           status?: string

@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { GENRE_LIST } from "@/lib/genres";
+import { parseIsrc } from "@/lib/isrc";
 
 // Supported external platforms for link validation
 const SUPPORTED_PLATFORMS = [
@@ -103,6 +104,14 @@ const Reviews = () => {
       return;
     }
 
+    const isrcResult = parseIsrc((form.elements.namedItem("isrc") as HTMLInputElement)?.value);
+    if (!isrcResult.valid) {
+      toast.error(isrcResult.error);
+      setIsSubmitting(false);
+      return;
+    }
+    const isrc = isrcResult.value;
+
     try {
       if (submitType === "upload") {
         if (!selectedFile) {
@@ -147,6 +156,7 @@ const Reviews = () => {
             file_url: filePath,
             status: "pending",
             genre: selectedGenre || null,
+            ...(isrc && { isrc }),
           });
 
         if (insertError) {
@@ -187,6 +197,7 @@ const Reviews = () => {
             platform: validation.platform,
             status: "pending",
             genre: selectedGenre || null,
+            ...(isrc && { isrc }),
           });
 
         if (insertError) {
@@ -454,6 +465,23 @@ const Reviews = () => {
                         ))}
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="isrc">
+                      ISRC <span className="text-muted-foreground font-normal">(optional)</span>
+                    </Label>
+                    <Input
+                      id="isrc"
+                      name="isrc"
+                      placeholder="e.g. ZA-ABC-24-00001"
+                      maxLength={20}
+                      autoComplete="off"
+                      className="mt-2 font-mono uppercase"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      12-character International Standard Recording Code from your distributor or label. You can add it later from your dashboard.
+                    </p>
                   </div>
 
                   <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
