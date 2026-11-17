@@ -130,7 +130,7 @@ const Auth = () => {
     try {
       if (mode === "forgot") {
         const { error } = await supabase.auth.resetPasswordForEmail(email, {
-          redirectTo: `${window.location.origin}/auth?mode=reset`,
+          redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
         });
 
         if (error) {
@@ -162,7 +162,7 @@ const Auth = () => {
 
         toast.success("Welcome back!");
       } else {
-        const redirectUrl = `${window.location.origin}/`;
+        const redirectUrl = `${window.location.origin}${import.meta.env.BASE_URL}`;
 
         const { data: signUpData, error } = await supabase.auth.signUp({
           email,
@@ -233,7 +233,7 @@ const Auth = () => {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}${import.meta.env.BASE_URL}`,
         },
       });
 
